@@ -11,6 +11,7 @@
 		"@types/react-dom": "^16.9.0",
 		"autoprefixer": "^9.7.4",
 		"create-react-component-folder": "0.1.30",
+		"lodash": "^4.17.15",
 		"postcss-cli": "^7.1.0",
 		"react": "^16.13.0",
 		"react-dom": "^16.13.0",
@@ -54,6 +55,7 @@
 		"uppercase"
 	],
 	"devDependencies": {
+		"@types/lodash": "^4.14.149",
 		"gh-pages": "^2.2.0"
 	}
 }

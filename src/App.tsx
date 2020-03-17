@@ -1,4 +1,5 @@
-import React, { SyntheticEvent, useState } from "react";
+import React, { createRef, SyntheticEvent } from "react";
+import _ from "lodash";
 // @ts-ignore
 import VTTConverter from "srt-webvtt";
 
@@ -7,8 +8,11 @@ function FileInput(props: React.ComponentProps<"input"> & { icon: string }) {
 		<>
 			<label
 				className={`hover:bg-gray-800 hover:cursor-pointer
-							 bg-gray-700 px-3 py-2 rounded leading-normal ${props.checked ?
-					"hover:bg-green-400 bg-green-300 text-green-800" : ""}`}
+							 bg-gray-700 px-3 py-2 rounded leading-normal ${
+					props.checked
+						? "hover:bg-green-400 bg-green-300 text-green-800"
+						: ""
+				}`}
 				htmlFor={props.name?.toLowerCase()}
 			>
 				{`${props.checked ? "✅ " : props.icon}${props.name}`}
@@ -24,113 +28,213 @@ function FileInput(props: React.ComponentProps<"input"> & { icon: string }) {
 	);
 }
 
-function App() {
-	const [videoName, setVideoName] = useState<string | null>(null);
-	const [videoSrc, setVideoSrc] = useState("");
-	const [subtitlesSrc, setSubtitlesSrc] = useState("");
+interface State {
+	videoName: string | null;
+	videoSrc: string;
+	subtitlesSrc: string;
+	nonDialogueSpeed: number;
+	dialogueSpeed: number;
+	isDialogue: boolean;
+	totalLength: number;
+	dialogueLength: number;
+}
 
-	const [speed, setSpeed] = useState(1.5);
-	const [dialogueSpeed, setDialogueSpeed] = useState(1);
+class App extends React.Component<any, State> {
+	private readonly videoRef: React.RefObject<HTMLVideoElement>;
 
-	const [isDialogue, setIsDialogue] = useState(false);
+	constructor(props: any) {
+		super(props);
+		this.state = {
+			videoName: null,
+			videoSrc: "",
+			subtitlesSrc: "",
+			nonDialogueSpeed: 1.5,
+			dialogueSpeed: 1,
+			isDialogue: false,
+			totalLength: 0,
+			dialogueLength: 0
+		};
+		this.videoRef = createRef();
+		this.getSavedTime = this.getSavedTime.bind(this);
+	}
 
-	const onPlay = (e: SyntheticEvent<HTMLVideoElement, Event>) => {
+	onSubtitlesAdded() {
+		setTimeout(() => {
+			const dialogueDuration = _.sum(
+				Array.from(this.videoRef.current?.textTracks[0].cues ?? []).map(cue => {
+					return cue.endTime - cue.startTime;
+				})
+			);
+
+			this.setState({
+				dialogueLength: dialogueDuration
+			});
+		}, 500);
+
+	}
+
+	onLoadedMetadata(event: React.SyntheticEvent<HTMLVideoElement>) {
+		this.setState({
+			totalLength: event.currentTarget.duration
+		});
+
+		event.currentTarget.textTracks.onaddtrack = this.onSubtitlesAdded.bind(this);
+	}
+
+	onPlay(e: SyntheticEvent<HTMLVideoElement, Event>) {
 		const video = e.target as HTMLVideoElement;
 		if (video.textTracks.length > 0) {
 			const tracks = video.textTracks;
 			const currentTrack = tracks[0];
 			currentTrack.oncuechange = _ => {
 				const cues = currentTrack.activeCues;
-				if (cues.length > 0) {
-					setIsDialogue(true);
-				} else {
-					setIsDialogue(false);
-				}
+				this.setState({ isDialogue: cues.length > 0 });
 			};
 		}
-	};
+	}
 
-	return (
-		<div className="h-screen flex flex-col justify-between">
-			<nav className="text-gray-200 flex items-center justify-between p-5">
-				<h1 className="text-gray-100 text-2xl overflow-hidden w-1/3">
-					{videoName ?? "Timesaver"}
-				</h1>
-				<div className="w-1/3 flex justify-center items-center">
-					<span className="mr-5">
+	getSavedTime() {
+		const nonDialogueLength = this.state.totalLength - this.state.dialogueLength;
+		const actualNonDialogueLength = nonDialogueLength / this.state.nonDialogueSpeed;
+
+		const actualDialogueLength = this.state.dialogueLength / this.state.dialogueSpeed;
+
+		const actualLength = actualDialogueLength + actualNonDialogueLength;
+
+		return this.state.totalLength - actualLength;
+	}
+
+	render() {
+		return (
+			<div className="h-screen flex flex-col justify-between">
+				<nav className="text-gray-200 flex items-center justify-between p-5">
+					<h1 className="text-gray-100 text-2xl overflow-hidden w-1/3">
+						{this.state.videoName ?? "Timesaver"}
+					</h1>
+					<div className="w-1/3 flex justify-center items-center">
+						<span className="mr-5">
+							<FileInput
+								name={"Media"}
+								icon={"▶ "}
+								checked={Boolean(this.state.videoName)}
+								accept={"video/*"}
+								onChange={e => {
+									if (e.target.files) {
+										this.setState({
+											videoName: e.target.files[0].name,
+											videoSrc: URL.createObjectURL(e.target.files[0])
+										});
+									}
+								}}
+							/>
+						</span>
 						<FileInput
-							name={"Media"}
-							icon={"▶ "}
-							checked={Boolean(videoName)}
-							accept={"video/*"}
+							name={"Subtitles"}
+							icon={"📄 "}
+							checked={Boolean(this.state.subtitlesSrc)}
+							accept={"text/srt .srt"}
 							onChange={e => {
 								if (e.target.files) {
-									setVideoName(e.target.files[0].name);
-									setVideoSrc(URL.createObjectURL(e.target.files[0]));
+									const converter = new VTTConverter(e.target.files[0]);
+									converter
+										.getURL()
+										.then((url: string) => {
+											this.setState({
+												subtitlesSrc: url
+											});
+										})
+										.catch((e: Error) => {
+											console.error(e);
+										});
 								}
 							}}
 						/>
-					</span>
-					<FileInput
-						name={"Subtitles"}
-						icon={"📄 "}
-						checked={Boolean(subtitlesSrc)}
-						accept={"text/srt"}
-						onChange={e => {
-							if (e.target.files) {
-								const converter = new VTTConverter(e.target.files[0]);
-								converter
-									.getURL()
-									.then((url: string) => {
-										setSubtitlesSrc(url);
-									})
-									.catch((e: Error) => {
-										console.error(e);
-									});
-							}
-						}}
-					/>
-				</div>
-				<div className="flex items-center w-1/3 justify-end">
-					<span className="mr-2">Speed inside dialogue: {dialogueSpeed}</span>
-					<input type="range" value={dialogueSpeed} step={0.1} min={1} max={5} onChange={(e) => {
-						setDialogueSpeed(Number(e.target.value));
-					}} />
-					<span className="mr-2">Speed oustide of dialogue: {speed}</span>
-					<input type="range" value={speed} step={0.1} min={1} max={5} onChange={(e) => {
-						setSpeed(Number(e.target.value));
-					}} />
-				</div>
-			</nav>
-			<main className="text-gray-100 flex flex-col justify-center items-center">
-				{videoSrc ? (
-					<div className="rounded p-5 overflow-hidden">
-						<video
-							controls
-							src={videoSrc}
-							onTimeUpdate={(e) => {
-								e.currentTarget.playbackRate = isDialogue ? dialogueSpeed : speed;
-							}}
-							onPlay={onPlay}
-						>
-							{Boolean(subtitlesSrc) && (
-								<track
-									label={"Subtitles"}
-									kind={"subtitles"}
-									srcLang={"en"}
-									src={subtitlesSrc}
-									default
-								/>
-							)}
-						</video>
 					</div>
-				) : (
-					<span className="my-5">Add your media using the button above</span>
-				)}
-			</main>
-			<div className="text-center text-gray-600 text-sm py-2">© Josef Vacek</div>
-		</div>
-	);
+					<div className="flex items-center w-1/3 justify-end">
+						<div>
+							Saved time:{" "}
+							{(
+								(this.getSavedTime() / this.state.totalLength) *
+								100
+							).toFixed(2)}
+							% ~ {Math.round(this.getSavedTime() / 60)} minutes
+						</div>
+						<div className="flex flex-col items-center justify-center mr-5">
+							<div>
+								<span className="text-gray-400 text-sm mr-1">Dialogue speed</span>
+								<span className="text-xl font-semibold">
+									{this.state.dialogueSpeed.toFixed(1)}
+								</span>
+							</div>
+							<input
+								type="range"
+								value={this.state.dialogueSpeed}
+								step={0.1}
+								min={1}
+								max={5}
+								onChange={e => {
+									this.setState({
+										dialogueSpeed: Number(e.target.value)
+									});
+								}}
+							/>
+						</div>
+						<div className="flex flex-col items-center justify-center mr-5">
+							<div>
+								<span className="text-gray-400 text-sm mr-1">
+									Non-dialogue speed
+								</span>
+								<span className="text-xl font-semibold">
+									{this.state.nonDialogueSpeed.toFixed(1)}
+								</span>
+							</div>
+							<input
+								type="range"
+								value={this.state.nonDialogueSpeed}
+								step={0.1}
+								min={1}
+								max={5}
+								onChange={e => {
+									this.setState({ nonDialogueSpeed: Number(e.target.value) });
+								}}
+							/>
+						</div>
+					</div>
+				</nav>
+				<main className="text-gray-100 flex flex-col justify-center items-center">
+					{this.state.videoSrc ? (
+						<div className="rounded p-5 overflow-hidden">
+							<video
+								ref={this.videoRef}
+								controls
+								src={this.state.videoSrc}
+								onTimeUpdate={e => {
+									e.currentTarget.playbackRate = this.state.isDialogue
+										? this.state.dialogueSpeed
+										: this.state.nonDialogueSpeed;
+								}}
+								onPlay={this.onPlay.bind(this)}
+								onLoadedMetadata={this.onLoadedMetadata.bind(this)}
+							>
+								{Boolean(this.state.subtitlesSrc) && (
+									<track
+										label={"Subtitles"}
+										kind={"subtitles"}
+										srcLang={"en"}
+										src={this.state.subtitlesSrc}
+										default
+									/>
+								)}
+							</video>
+						</div>
+					) : (
+						<span className="my-5">Add your media using the button above</span>
+					)}
+				</main>
+				<div className="text-center text-gray-600 text-sm py-2">© Josef Vacek</div>
+			</div>
+		);
+	}
 }
 
 export default App;
