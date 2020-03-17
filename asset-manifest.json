@@ -1,22 +1,22 @@
 {
   "files": {
     "main.css": "/timesaver/static/css/main.49da5464.chunk.css",
-    "main.js": "/timesaver/static/js/main.0d926a3b.chunk.js",
-    "main.js.map": "/timesaver/static/js/main.0d926a3b.chunk.js.map",
+    "main.js": "/timesaver/static/js/main.6e96ce5e.chunk.js",
+    "main.js.map": "/timesaver/static/js/main.6e96ce5e.chunk.js.map",
     "runtime-main.js": "/timesaver/static/js/runtime-main.3cf586b7.js",
     "runtime-main.js.map": "/timesaver/static/js/runtime-main.3cf586b7.js.map",
-    "static/js/2.8a6c4ba8.chunk.js": "/timesaver/static/js/2.8a6c4ba8.chunk.js",
-    "static/js/2.8a6c4ba8.chunk.js.map": "/timesaver/static/js/2.8a6c4ba8.chunk.js.map",
+    "static/js/2.11fc8594.chunk.js": "/timesaver/static/js/2.11fc8594.chunk.js",
+    "static/js/2.11fc8594.chunk.js.map": "/timesaver/static/js/2.11fc8594.chunk.js.map",
     "index.html": "/timesaver/index.html",
-    "precache-manifest.a9c6dd168aa8968b951ebcb98fafc1d1.js": "/timesaver/precache-manifest.a9c6dd168aa8968b951ebcb98fafc1d1.js",
+    "precache-manifest.933dbd2dd66864b6fa749488637de841.js": "/timesaver/precache-manifest.933dbd2dd66864b6fa749488637de841.js",
     "service-worker.js": "/timesaver/service-worker.js",
     "static/css/main.49da5464.chunk.css.map": "/timesaver/static/css/main.49da5464.chunk.css.map",
-    "static/js/2.8a6c4ba8.chunk.js.LICENSE.txt": "/timesaver/static/js/2.8a6c4ba8.chunk.js.LICENSE.txt"
+    "static/js/2.11fc8594.chunk.js.LICENSE.txt": "/timesaver/static/js/2.11fc8594.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.3cf586b7.js",
-    "static/js/2.8a6c4ba8.chunk.js",
+    "static/js/2.11fc8594.chunk.js",
     "static/css/main.49da5464.chunk.css",
-    "static/js/main.0d926a3b.chunk.js"
+    "static/js/main.6e96ce5e.chunk.js"
   ]
 }
