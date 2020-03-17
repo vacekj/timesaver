@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/jouzalol.github.io/timesaver/static/css/main.49da5464.chunk.css",
-    "main.js": "/jouzalol.github.io/timesaver/static/js/main.855a693c.chunk.js",
-    "main.js.map": "/jouzalol.github.io/timesaver/static/js/main.855a693c.chunk.js.map",
-    "runtime-main.js": "/jouzalol.github.io/timesaver/static/js/runtime-main.5a227618.js",
-    "runtime-main.js.map": "/jouzalol.github.io/timesaver/static/js/runtime-main.5a227618.js.map",
-    "static/js/2.8a6c4ba8.chunk.js": "/jouzalol.github.io/timesaver/static/js/2.8a6c4ba8.chunk.js",
-    "static/js/2.8a6c4ba8.chunk.js.map": "/jouzalol.github.io/timesaver/static/js/2.8a6c4ba8.chunk.js.map",
-    "index.html": "/jouzalol.github.io/timesaver/index.html",
-    "precache-manifest.42327d3adbead9f935ca8c16d7c31ac4.js": "/jouzalol.github.io/timesaver/precache-manifest.42327d3adbead9f935ca8c16d7c31ac4.js",
-    "service-worker.js": "/jouzalol.github.io/timesaver/service-worker.js",
-    "static/css/main.49da5464.chunk.css.map": "/jouzalol.github.io/timesaver/static/css/main.49da5464.chunk.css.map",
-    "static/js/2.8a6c4ba8.chunk.js.LICENSE.txt": "/jouzalol.github.io/timesaver/static/js/2.8a6c4ba8.chunk.js.LICENSE.txt"
+    "main.css": "/timesaver/static/css/main.49da5464.chunk.css",
+    "main.js": "/timesaver/static/js/main.0d926a3b.chunk.js",
+    "main.js.map": "/timesaver/static/js/main.0d926a3b.chunk.js.map",
+    "runtime-main.js": "/timesaver/static/js/runtime-main.3cf586b7.js",
+    "runtime-main.js.map": "/timesaver/static/js/runtime-main.3cf586b7.js.map",
+    "static/js/2.8a6c4ba8.chunk.js": "/timesaver/static/js/2.8a6c4ba8.chunk.js",
+    "static/js/2.8a6c4ba8.chunk.js.map": "/timesaver/static/js/2.8a6c4ba8.chunk.js.map",
+    "index.html": "/timesaver/index.html",
+    "precache-manifest.a9c6dd168aa8968b951ebcb98fafc1d1.js": "/timesaver/precache-manifest.a9c6dd168aa8968b951ebcb98fafc1d1.js",
+    "service-worker.js": "/timesaver/service-worker.js",
+    "static/css/main.49da5464.chunk.css.map": "/timesaver/static/css/main.49da5464.chunk.css.map",
+    "static/js/2.8a6c4ba8.chunk.js.LICENSE.txt": "/timesaver/static/js/2.8a6c4ba8.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.5a227618.js",
+    "static/js/runtime-main.3cf586b7.js",
     "static/js/2.8a6c4ba8.chunk.js",
     "static/css/main.49da5464.chunk.css",
-    "static/js/main.855a693c.chunk.js"
+    "static/js/main.0d926a3b.chunk.js"
   ]
 }
