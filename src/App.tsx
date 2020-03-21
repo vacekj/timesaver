@@ -1,4 +1,4 @@
-import React, { createRef, SyntheticEvent } from "react";
+import React, { createRef } from "react";
 import _ from "lodash";
 // @ts-ignore
 import VTTConverter from "srt-webvtt";
@@ -34,9 +34,9 @@ interface State {
 	subtitlesSrc: string;
 	nonDialogueSpeed: number;
 	dialogueSpeed: number;
-	isDialogue: boolean;
 	totalLength: number;
 	dialogueLength: number;
+	cues: TextTrackCue[];
 }
 
 class App extends React.Component<any, State> {
@@ -50,9 +50,9 @@ class App extends React.Component<any, State> {
 			subtitlesSrc: "",
 			nonDialogueSpeed: 1.5,
 			dialogueSpeed: 1,
-			isDialogue: false,
 			totalLength: 0,
-			dialogueLength: 0
+			dialogueLength: 0,
+			cues: []
 		};
 		this.videoRef = createRef();
 		this.getSavedTime = this.getSavedTime.bind(this);
@@ -60,17 +60,19 @@ class App extends React.Component<any, State> {
 
 	onSubtitlesAdded() {
 		setTimeout(() => {
+			const cues = Array.from(this.videoRef.current?.textTracks[0].cues ?? []);
+
 			const dialogueDuration = _.sum(
-				Array.from(this.videoRef.current?.textTracks[0].cues ?? []).map(cue => {
+				cues.map(cue => {
 					return cue.endTime - cue.startTime;
 				})
 			);
 
 			this.setState({
-				dialogueLength: dialogueDuration
+				dialogueLength: dialogueDuration,
+				cues
 			});
 		}, 500);
-
 	}
 
 	onLoadedMetadata(event: React.SyntheticEvent<HTMLVideoElement>) {
@@ -79,18 +81,6 @@ class App extends React.Component<any, State> {
 		});
 
 		event.currentTarget.textTracks.onaddtrack = this.onSubtitlesAdded.bind(this);
-	}
-
-	onPlay(e: SyntheticEvent<HTMLVideoElement, Event>) {
-		const video = e.target as HTMLVideoElement;
-		if (video.textTracks.length > 0) {
-			const tracks = video.textTracks;
-			const currentTrack = tracks[0];
-			currentTrack.oncuechange = _ => {
-				const cues = currentTrack.activeCues;
-				this.setState({ isDialogue: cues.length > 0 });
-			};
-		}
 	}
 
 	getSavedTime() {
@@ -153,11 +143,8 @@ class App extends React.Component<any, State> {
 					<div className="flex items-center w-1/3 justify-end">
 						<div>
 							Saved time:{" "}
-							{(
-								(this.getSavedTime() / this.state.totalLength) *
-								100
-							).toFixed(2)}
-							% ~ {Math.round(this.getSavedTime() / 60)} minutes
+							{((this.getSavedTime() / this.state.totalLength) * 100).toFixed(2)}% ~{" "}
+							{Math.round(this.getSavedTime() / 60)} minutes
 						</div>
 						<div className="flex flex-col items-center justify-center mr-5">
 							<div>
@@ -209,11 +196,15 @@ class App extends React.Component<any, State> {
 								controls
 								src={this.state.videoSrc}
 								onTimeUpdate={e => {
-									e.currentTarget.playbackRate = this.state.isDialogue
+									const isInCue = this.state.cues.find(
+										cue =>
+											cue.startTime - 1 <= e.currentTarget.currentTime &&
+											cue.endTime >= e.currentTarget.currentTime + 1
+									);
+									e.currentTarget.playbackRate = isInCue
 										? this.state.dialogueSpeed
 										: this.state.nonDialogueSpeed;
 								}}
-								onPlay={this.onPlay.bind(this)}
 								onLoadedMetadata={this.onLoadedMetadata.bind(this)}
 							>
 								{Boolean(this.state.subtitlesSrc) && (
