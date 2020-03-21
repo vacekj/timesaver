@@ -199,7 +199,7 @@ class App extends React.Component<any, State> {
 									const isInCue = this.state.cues.find(
 										cue =>
 											cue.startTime - 1 <= e.currentTarget.currentTime &&
-											cue.endTime >= e.currentTarget.currentTime + 1
+											cue.endTime + 1 >= e.currentTarget.currentTime
 									);
 									e.currentTarget.playbackRate = isInCue
 										? this.state.dialogueSpeed
